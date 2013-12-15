@@ -161,6 +161,7 @@
                     rows.push([i, src, data.list[src]]);
                     ++i;
                 }
+                /*
                 $('#proxy_table_list tbody').html("");
                 rows.forEach(function(item) {
                     var ops = $(' <a class="btn btn-sm btn-warning proxy_del"> 删除 <a/> <span class="col-md-1"></span>' 
@@ -174,15 +175,35 @@
                                 tr.attr("data", JSON.stringify(item));
                                 tr.appendTo('#proxy_table_list tbody');
                 });
+                */
+                var aa_data = _.map(rows,function(item) {
+                    return [
+                     item[0],
+                     item[1],
+                     item[2],
+
+                     ' <div data=\''+ JSON.stringify(item)+'\' > <a class="btn btn-sm btn-warning proxy_del"> 删除 <a/> <span class="col-md-1"></span>' 
+                                 + '<a class="btn btn-sm btn-default proxy_change" data-toggle="modal" data-target="#proxy_change_diag"> 修改<a/> </div>',
+                                        ];
+                });
 
                 if (!is_init_datatable) {
-                    $('#proxy_table_list').dataTable(dataTableConf); 
+                    $('#proxy_table_list').dataTable(_.extend({aaData:aa_data}, dataTableConf)); 
                     is_init_datatable = true;
                 } else {
-                    var o = $('#proxy_table_list').dataTable();
+                    var table = $('#proxy_table_list').dataTable();
+                    var oSettings = table.fnSettings();
+
+                    table.fnClearTable(this);
+                    _.each(aa_data, function(data) {
+                        table.oApi._fnAddData(oSettings, data);
+                    });
+
+                    oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
+                    table.fnDraw();
                 }
                 $('#proxy_table_list a.proxy_change').click(function() {
-                    var tr = $(this).parent().parent();
+                    var tr = $(this).parent();
                     var data = tr.attr("data");  
                     data = JSON.parse(data);
                     $("#proxy_src").val(data[1]);
@@ -191,12 +212,13 @@
                 });
 
                 $('#proxy_table_list a.proxy_del').click(function() {
-                    var tr = $(this).parent().parent();
+                    var tr = $(this).parent();
                     var data = tr.attr("data");  
                     data = JSON.parse(data);
                     $.getJSON("/cgi/proxy/remove?callback=?", {key:data[1]}).done(function(result) {
+                        var table = $('#proxy_table_list').dataTable();
                         if(result.ret == 0) {
-                            tr.remove(); 
+                            query_proc();
                         }
                     });
                 });
