@@ -1,6 +1,8 @@
 /**
  * Module dependencies.
  */
+//set process name for ps
+process.title = "node_http_proxy_webui";
 
 var express = require('express');
 var routes = require('./routes');
