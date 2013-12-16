@@ -56,6 +56,9 @@
                 <div class = "col-md-2 text-center">
                     <a  class="btn btn-default" data-toggle="modal" data-target="#proxy_add_diag">新增</a>
                 </div>
+                <div class = "col-md-2 text-center">
+                    <a  class="btn btn-default" data-toggle="modal" data-target="#proxy_cookie_forword_diag">Cookie跳转</a>
+                </div>
             </form>
         </div>
         <div class="row">
@@ -105,7 +108,7 @@
             </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
 
-        <div class="modal fade" id="proxy_add_diag" tabindex="-1" role="dialog" aria-labelledby="Add" aria-hidden="true">
+        <div class="modal fade" id="proxy_add_diag" tabindex="-1" role="dialog" aria-labelledby="change" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -121,6 +124,26 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
                         <button type="button" class="btn btn-primary" id="add_proxy_btn">添加</button>
+                    </div>
+                </div><!-- /.modal-content -->
+            </div><!-- /.modal-dialog -->
+        </div>
+        <div class="modal fade" id="proxy_cookie_forword_diag" tabindex="-1" role="dialog" aria-labelledby="cookie_forward" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">基于cookie的跳转</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class = "input-group">
+                            <span class = "input-group-addon">URL:</span> 
+                            <input class="url form-control" type="text" id="cookie_forward_url" placeholder="目标URL"/>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" id="cookie_proxy_forward_btn">Go</button>
                     </div>
                 </div><!-- /.modal-content -->
             </div><!-- /.modal-dialog -->
@@ -207,6 +230,7 @@
                     var data = tr.attr("data");  
                     data = JSON.parse(data);
                     $("#proxy_src").val(data[1]);
+                    window.g_proxy_change_key =data[1];
                     $("#proxy_dest").val(data[2]);
                     return ;
                 });
@@ -242,7 +266,8 @@
         $("#change_proxy_btn").click(function() {
             var src = $("#proxy_src").val();
             var dest = $("#proxy_dest").val();
-            $.getJSON("/cgi/proxy/change?callback=?",{src:src, dest:dest}).done(function(result) {
+            var key = window.g_proxy_change_key; 
+            $.getJSON("/cgi/proxy/change?callback=?",{old_key:key, src:src, dest:dest}).done(function(result) {
                 if (result.ret == 0) {
                     $("#proxy_change_diag").modal("hide");
                     query_proc();
@@ -252,6 +277,11 @@
                     alert("修改失败");
                 }
             });
+        });
+        $("#cookie_proxy_forward_btn").click(function() {
+            var url = $("#cookie_forward_url").val();
+            window.open("/cgi/cookie/forward?url="+ encodeURIComponent(url)+"&_ts="+Date.now(), "CookieForward", "_blank");
+            $("#proxy_cookie_forword_diag").modal("hide");
         });
         query_proc();
      });

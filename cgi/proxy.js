@@ -71,17 +71,18 @@ exports.list = function(req, resp, Env) {
 
 exports.change = function(req, resp, Env) {
     var proxy = Env.proxy;
+    var old_key = req.query.old_key;
     var src = req.query.src;
     var dest = req.query.dest;
     var callback = req.query.callback;
     var webui_keys = Env.webui_keys;
-    if (!!src  && !!dest ) {
+    if (!!old_key && !!src  && !!dest ) {
         if (has_webui_keys(src, webui_keys)) {
             resp.end(util.format("%s(%j);", callback, {ret:2, 
                                  msg:"forbidden,src is  webui proxy map"}));
              return;
         }
-        proxy.proxy.proxyTable.removeRoute(src);
+        proxy.proxy.proxyTable.removeRoute(old_key);
         proxy.proxy.proxyTable.addRoute(src, dest);
         resp.end(util.format("%s(%j);", callback, {ret:0, msg:"success"}));
         var table = _.clone(proxy.proxy.proxyTable.router);

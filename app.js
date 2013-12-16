@@ -93,7 +93,13 @@ var options = {
   router: _.extend(config_router, web_ui_router)
 }
 
-proxy = httpProxy.createServer(options).listen(8000);
-http.createServer(function(req,res) {
-    res.end("test");
-}).listen(7000);
+var proxy_port = app.get('proxy_port');
+if (!proxy_port) proxy_port = 80;
+proxy = httpProxy.createServer(options).listen(proxy_port);
+
+var cookie_proxy_port = app.get('cookie_proxy_port');
+var cookie_proxy_http_port = app.get('cookie_proxy_http_port');
+if (!cookie_proxy_port) cookie_proxy_port = 8080;
+if (!cookie_proxy_http_port) cookie_proxy_http_port = 8888;
+var cookie_proxy = require("./cookie_proxy");
+cookie_proxy.start(cookie_proxy_port, cookie_proxy_http_port);
