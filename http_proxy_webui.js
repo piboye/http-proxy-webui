@@ -97,6 +97,7 @@ var options = {
 
 var proxy_port = app.get('proxy_port');
 if (!proxy_port) proxy_port = 80;
+console.log("proxy_port:%d", proxy_port);
 proxy = httpProxy.createServer(options).listen(proxy_port);
 
 var cookie_proxy_port = app.get('cookie_proxy_port');
